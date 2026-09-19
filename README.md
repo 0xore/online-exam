@@ -125,3 +125,4 @@ Preview deployments can keep the `*.vercel.app` host in the Supabase redirect al
 - `/admin/exams/[id]/attempts` — live attempt list and scores
 - `/admin/exams/[id]/attempts/[attemptId]` — mark answers, including essays
 - `/admin/exams/[id]/attempts/export` — download attempt results CSV
+- `/admin/exams/[id]/questions/template` — download the Excel or Word question template

@@ -1,17 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { isMcqQuestionType } from "@/lib/admin/exam-kind";
+import { isExamType, isMcqQuestionType } from "@/lib/admin/exam-kind";
+import { optionId, toQuestionColumns } from "@/lib/admin/question-columns";
+import { parseQuestionImportFile } from "@/lib/admin/question-import-files";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { questionSchema, questionTypeSchema } from "@/lib/admin/schemas";
-import type { Json } from "@/lib/supabase/database.types";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string } | null;
-
-function optionId(index: number) {
-  return String.fromCharCode(97 + index);
-}
 
 function readQuestionInput(formData: FormData) {
   const type = questionTypeSchema.parse(String(formData.get("type") ?? ""));
@@ -38,68 +35,6 @@ function readQuestionInput(formData: FormData) {
     correct_option_ids: correctOptionIds,
     acceptable_answers: acceptableAnswers,
   });
-}
-
-function toQuestionColumns(parsed: ReturnType<typeof questionSchema.parse>) {
-  if (parsed.type === "long_answer") {
-    return {
-      type: parsed.type,
-      question_text: parsed.question_text,
-      marks: parsed.marks,
-      options: null,
-      correct_answer: null,
-      acceptable_answers: null,
-    };
-  }
-
-  if (parsed.type === "short_answer") {
-    if (!parsed.acceptable_answers?.length) {
-      throw new Error("Add at least one acceptable short-answer variant.");
-    }
-
-    return {
-      type: parsed.type,
-      question_text: parsed.question_text,
-      marks: parsed.marks,
-      options: null,
-      correct_answer: null,
-      acceptable_answers: parsed.acceptable_answers as unknown as Json,
-    };
-  }
-
-  const options = parsed.options ?? [];
-  if (options.length < 2) {
-    throw new Error("Add at least two answer options.");
-  }
-
-  const correct = parsed.correct_option_ids ?? [];
-  if (parsed.type === "multiple_choice") {
-    if (correct.length < 1) {
-      throw new Error("Select at least one correct option.");
-    }
-
-    return {
-      type: parsed.type,
-      question_text: parsed.question_text,
-      marks: parsed.marks,
-      options: options as unknown as Json,
-      correct_answer: correct as unknown as Json,
-      acceptable_answers: null,
-    };
-  }
-
-  if (correct.length !== 1) {
-    throw new Error("Select one correct option.");
-  }
-
-  return {
-    type: parsed.type,
-    question_text: parsed.question_text,
-    marks: parsed.marks,
-    options: options as unknown as Json,
-    correct_answer: correct[0] as unknown as Json,
-    acceptable_answers: null,
-  };
 }
 
 async function assertQuestionMatchesExam(
@@ -271,4 +206,59 @@ export async function moveQuestionAction(
   await supabase.from("questions").update({ position: current.position }).eq("id", other.id);
   await supabase.from("questions").update({ position: other.position }).eq("id", current.id);
   await revalidateExam(examId);
+}
+
+export async function importQuestionsAction(
+  examId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { supabase } = await requireAdmin();
+  const file = formData.get("file");
+
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Choose an Excel .xlsx or Word .docx file to upload." };
+  }
+
+  const { data: exam } = await supabase
+    .from("exams")
+    .select("exam_type")
+    .eq("id", examId)
+    .maybeSingle();
+
+  if (!exam) {
+    return { error: "That exam could not be found." };
+  }
+
+  const examType = isExamType(exam.exam_type) ? exam.exam_type : "mixed";
+  const parsed = await parseQuestionImportFile(file, examType);
+
+  if (!parsed.ok) {
+    return { error: parsed.errors.join(" ") };
+  }
+
+  const { data: last } = await supabase
+    .from("questions")
+    .select("position")
+    .eq("exam_id", examId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await supabase.from("questions").insert(
+    parsed.questions.map((question, index) => ({
+      exam_id: examId,
+      position: (last?.position ?? 0) + index + 1,
+      ...question,
+    })),
+  );
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  await revalidateExam(examId);
+  return {
+    success: `Imported ${parsed.questions.length} question${parsed.questions.length === 1 ? "" : "s"}.`,
+  };
 }

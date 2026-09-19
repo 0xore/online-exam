@@ -11,6 +11,7 @@ import { CopyExamUrl } from "@/app/admin/(protected)/exams/copy-exam-url";
 import { DeleteExamButton } from "@/app/admin/(protected)/exams/delete-exam-button";
 import { ExamForm } from "@/app/admin/(protected)/exams/exam-form";
 import { QuestionForm } from "@/app/admin/(protected)/exams/question-form";
+import { QuestionImport } from "@/app/admin/(protected)/exams/question-import";
 import { isExamType } from "@/lib/admin/exam-kind";
 import { requireAdmin } from "@/lib/admin/require-admin";
 
@@ -67,6 +68,7 @@ export default async function EditExamPage({ params }: ExamPageProps) {
 
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold tracking-tight">Questions</h2>
+        <QuestionImport examId={exam.id} />
         {(questions ?? []).map((question, index) => (
           <article
             key={question.id}
