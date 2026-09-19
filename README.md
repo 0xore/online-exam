@@ -12,7 +12,7 @@ Stage 10: Production build, environment variables, Supabase setup, Vercel deploy
 
 ## Local setup
 
-1. Install [Node.js 20.9+](https://nodejs.org/).
+1. Install [Node.js 24](https://nodejs.org/).
 2. Install dependencies with `npm install`.
 3. Copy `.env.example` to `.env.local`.
 4. Add the Supabase project URL and anon key from **Project Settings → API**.
@@ -87,7 +87,7 @@ The app needs a Node.js server (Server Components, Server Actions, and `src/prox
 5. Open `/admin/login` on that URL and create the first administrator if the environment is new.
 6. Create or publish a real exam, then share `/e/[slug]` with candidates.
 
-Self-hosting also works: build on Node 20.9+, set the same two environment variables, and run `npm run start` behind HTTPS.
+Self-hosting also works: build on Node 24, set the same two environment variables, and run `npm run start` behind HTTPS.
 
 ## Custom domain
 

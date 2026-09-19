@@ -119,7 +119,7 @@ describe("template files", () => {
     const ExcelJS = (await import("exceljs")).default;
     const empty = await buildQuestionExcelTemplate("mcq");
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(empty);
+    await workbook.xlsx.load(Buffer.from(new Uint8Array(empty)) as never);
     workbook.getWorksheet("Questions")?.addRow([
       "single_choice",
       "Capital of Nigeria?",
@@ -133,8 +133,8 @@ describe("template files", () => {
       "b",
       "",
     ]);
-    const filled = Buffer.from(await workbook.xlsx.writeBuffer());
-    const file = new File([filled], "questions.xlsx", {
+    const filled = await workbook.xlsx.writeBuffer();
+    const file = new File([new Uint8Array(filled)], "questions.xlsx", {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const result = await parseQuestionImportFile(file, "mcq");

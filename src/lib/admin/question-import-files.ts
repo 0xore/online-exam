@@ -13,6 +13,10 @@ import type { ExamType } from "@/lib/admin/exam-kind";
 
 const MAX_IMPORT_BYTES = 2 * 1024 * 1024;
 
+function toExcelBuffer(value: Uint8Array) {
+  return Buffer.from(value.buffer, value.byteOffset, value.byteLength) as unknown as Buffer;
+}
+
 export function detectQuestionImportKind(fileName: string, mimeType = "") {
   const name = fileName.toLowerCase();
   if (name.endsWith(".xlsx") || mimeType.includes("spreadsheetml")) {
@@ -74,11 +78,11 @@ export async function parseQuestionImportFile(
     };
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const bytes = new Uint8Array(await file.arrayBuffer());
 
   if (kind === "xlsx") {
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
+    await workbook.xlsx.load(toExcelBuffer(bytes) as never);
     const sheet =
       workbook.getWorksheet("Questions") ??
       workbook.worksheets.find((item) => item.name !== "Instructions" && item.name !== "Examples") ??
@@ -102,7 +106,7 @@ export async function parseQuestionImportFile(
     return importQuestionRows(tableToObjects(rows), examType);
   }
 
-  const zip = await JSZip.loadAsync(buffer);
+  const zip = await JSZip.loadAsync(bytes);
   const documentXml = await zip.file("word/document.xml")?.async("string");
   if (!documentXml) {
     return { ok: false, errors: ["That Word file does not contain a readable document."] };
@@ -147,15 +151,6 @@ export async function buildQuestionExcelTemplate(examType: ExamType) {
   });
   questions.getColumn(2).width = 56;
   questions.views = [{ state: "frozen", ySplit: 1 }];
-  questions.dataValidations.add("A2:A200", {
-    type: "list",
-    allowBlank: true,
-    formulae: [
-      examType === "mcq"
-        ? '"single_choice,multiple_choice,true_false"'
-        : '"single_choice,multiple_choice,true_false,short_answer,long_answer"',
-    ],
-  });
 
   const examples = workbook.addWorksheet("Examples");
   writeHeaderRow(examples);
@@ -165,7 +160,7 @@ export async function buildQuestionExcelTemplate(examType: ExamType) {
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
-  return Buffer.from(buffer);
+  return new Uint8Array(buffer);
 }
 
 function textCell(text: string, bold = false) {
@@ -221,5 +216,5 @@ export async function buildQuestionWordTemplate(examType: ExamType) {
     ],
   });
 
-  return Buffer.from(await Packer.toBuffer(document));
+  return new Uint8Array(await Packer.toBuffer(document));
 }
