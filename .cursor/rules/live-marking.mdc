@@ -1,0 +1,16 @@
+---
+description: Mark answers in real time during active exam attempts
+alwaysApply: true
+---
+
+# Real-time marking
+
+Answer keys may be stored on questions. Marking is not deferred until submit.
+
+- On every trusted answer save, compute and persist `auto_marks` for objective and configured short-answer questions.
+- Administrators may view saved answers and assign `manual_marks` while an attempt is still `active`.
+- Recalculate `auto_score`, `manual_score`, and `final_score` after each save or manual mark.
+- Expiry and submit still lock further candidate changes. Already-computed marks remain.
+- While an attempt is `active`, never send `correct_answer`, acceptable variants, marks, or scores to candidate-facing APIs or UI.
+- After an attempt is locked, MCQ-only exams may show the candidate their result. See the candidate MCQ results rule.
+- Changing the candidate clock must not affect save, marking, or expiry checks.

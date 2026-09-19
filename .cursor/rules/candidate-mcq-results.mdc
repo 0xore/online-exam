@@ -1,0 +1,15 @@
+---
+description: Show candidates their result after MCQ-only exams
+alwaysApply: true
+---
+
+# Candidate MCQ results
+
+Candidates may see an exam result only after the attempt is submitted or expired.
+
+- Treat `exam_type = mcq` as an MCQ exam. Allowed questions: single-choice, multiple-choice, and true/false.
+- Treat `exam_type = mixed` as a mixed exam. It may include MCQ plus short-answer and long-answer questions.
+- After lock, MCQ exams show the automatic score, pass/fail when a pass mark is set, and per-question correct/incorrect with the candidate's selection and the correct option.
+- Do not show marks, correctness, or answer keys while the attempt is still `active`.
+- Mixed exams show a confirmation only. Do not reveal scores or keys to the candidate.
+- Administrators always see full marks for every attempt, including mixed and essay exams.

@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #eef2f5;
+  --foreground: #101011;
+  --card: #ffffff;
+  --muted: #7c929c;
+  --accent: #37beff;
+  --border: #e4eaee;
+  --sky: #37beff;
+  --blush: #ecb2bc;
+  --gold: #fec175;
+  --slate: #8ba4af;
+  --canvas: #fafafb;
+  --ink: #101011;
+  --plum: #5b4b79;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-sky: var(--sky);
+  --color-blush: var(--blush);
+  --color-gold: var(--gold);
+  --color-slate: var(--slate);
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-plum: var(--plum);
+  --font-sans: var(--font-plus-jakarta);
+  --font-mono: var(--font-geist-mono);
+  --shadow-soft: 0 18px 50px rgba(16, 16, 17, 0.06);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-plus-jakarta), Arial, Helvetica, sans-serif;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="datetime-local"],
+textarea,
+select {
+  border-color: var(--border);
+  background: #fff;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--sky);
+  outline: 2px solid color-mix(in srgb, var(--sky) 35%, transparent);
+  outline-offset: 1px;
+}
