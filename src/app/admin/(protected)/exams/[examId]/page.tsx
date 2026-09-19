@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteExamAction, updateExamAction } from "@/app/admin/actions";
+import { updateExamAction } from "@/app/admin/actions";
 import {
   createQuestionAction,
   deleteQuestionAction,
@@ -8,6 +8,7 @@ import {
   updateQuestionAction,
 } from "@/app/admin/question-actions";
 import { CopyExamUrl } from "@/app/admin/(protected)/exams/copy-exam-url";
+import { DeleteExamButton } from "@/app/admin/(protected)/exams/delete-exam-button";
 import { ExamForm } from "@/app/admin/(protected)/exams/exam-form";
 import { QuestionForm } from "@/app/admin/(protected)/exams/question-form";
 import { isExamType } from "@/lib/admin/exam-kind";
@@ -61,14 +62,7 @@ export default async function EditExamPage({ params }: ExamPageProps) {
             submitLabel="Save exam"
           />
         </div>
-        <form action={deleteExamAction.bind(null, exam.id)} className="mt-6">
-          <button
-            type="submit"
-            className="text-sm font-medium text-red-700 hover:underline"
-          >
-            Delete exam
-          </button>
-        </form>
+        <DeleteExamButton examId={exam.id} examTitle={exam.title} />
       </section>
 
       <section className="space-y-4">

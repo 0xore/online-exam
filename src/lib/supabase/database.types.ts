@@ -281,6 +281,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_exam: { Args: { p_exam_id: string }; Returns: boolean }
       bootstrap_first_admin: { Args: never; Returns: boolean }
       exam_is_mcq_only: { Args: { p_exam_id: string }; Returns: boolean }
       get_candidate_attempt: {

@@ -39,7 +39,7 @@ export function requirePublicSupabaseEnv() {
 
   if (!isSupabaseConfigured()) {
     throw new Error(
-      "Supabase is not configured. Copy .env.example to .env.local and set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local or in Vercel → Settings → Environment Variables.",
     );
   }
 

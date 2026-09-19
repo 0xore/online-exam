@@ -49,6 +49,7 @@ This project already has a connected Supabase database. For a new environment, r
    - `fix_candidate_paper_question_id`
    - `attempt_clock_guard`
    - `candidate_mcq_results`
+   - `admin_delete_exam`
 3. Optionally run `supabase/seed.sql` for the practice exams (`practice-5min`, `practice-mcq`, `stage9-random`).
 4. Confirm **Authentication → Providers → Email** is enabled. Password sign-in is enough; candidate emails are not verified.
 5. Set **Authentication → URL configuration**:
@@ -81,8 +82,8 @@ The app needs a Node.js server (Server Components, Server Actions, and `src/prox
 
 1. Push this repository to GitHub.
 2. In [Vercel](https://vercel.com), import the repo. Framework preset: **Next.js**.
-3. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Deploy. The first production URL looks like `https://online-exam-xxxx.vercel.app`.
+3. **Before the first deploy**, add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for Production, Preview, and Development. Copy the values from local `.env.local`. Do not add the service role key.
+4. Deploy (or Redeploy after adding the variables). The first production URL looks like `https://online-exam-xxxx.vercel.app`.
 5. Open `/admin/login` on that URL and create the first administrator if the environment is new.
 6. Create or publish a real exam, then share `/e/[slug]` with candidates.
 

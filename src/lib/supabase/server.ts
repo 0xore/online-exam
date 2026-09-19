@@ -1,11 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { requirePublicSupabaseEnv } from "@/lib/env";
 import type { Database } from "@/lib/supabase/database.types";
 
 export async function createServerSupabaseClient() {
-  const env = requirePublicSupabaseEnv();
+  // Wait for the request before reading env. Otherwise Next prerenders
+  // /admin at build time and throws when Vercel env vars are not inlined yet.
+  await connection();
   const cookieStore = await cookies();
+  const env = requirePublicSupabaseEnv();
 
   return createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,

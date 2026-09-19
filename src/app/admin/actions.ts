@@ -204,14 +204,30 @@ export async function updateExamAction(
   return { success: "Exam saved." };
 }
 
-export async function deleteExamAction(examId: string) {
+export async function deleteExamAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const { supabase } = await requireAdmin();
-  const { error } = await supabase.from("exams").delete().eq("id", examId);
+  const examId = String(formData.get("examId") ?? "");
+
+  if (!/^[0-9a-f-]{36}$/i.test(examId)) {
+    return { error: "Missing exam." };
+  }
+
+  const { data: deleted, error } = await supabase.rpc("admin_delete_exam", {
+    p_exam_id: examId,
+  });
 
   if (error) {
-    redirect(`/admin/exams/${examId}?error=${encodeURIComponent(error.message)}`);
+    return { error: error.message };
+  }
+
+  if (!deleted) {
+    return { error: "That exam could not be found." };
   }
 
   revalidatePath("/admin");
+  revalidatePath(`/admin/exams/${examId}`);
   redirect("/admin");
 }
